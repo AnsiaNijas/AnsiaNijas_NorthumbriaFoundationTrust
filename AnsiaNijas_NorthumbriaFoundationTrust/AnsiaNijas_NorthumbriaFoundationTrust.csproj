@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+
+		<!-- This makes 'dotnet build' install the Playwright browsers automatically -->
+		<PlaywrightInstallBrowsers>true</PlaywrightInstallBrowsers>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Reqnroll: generate code-behind for ALL .feature files -->
+		<None Update="**\*.feature">
+			<Generator>ReqnrollSingleFileGenerator</Generator>
+			<LastGenOutput>%(Filename).feature.cs</LastGenOutput>
+		</None>
+		<Compile Update="**\*.feature.cs">
+			<DesignTime>true</DesignTime>
+			<AutoGen>true</AutoGen>
+			<DependentUpon>%(Filename)</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Testing + BDD + Playwright -->
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+		<PackageReference Include="Microsoft.Playwright" Version="1.54.0" />
+
+		<!-- Use NUnit 3 for now (most stable with Reqnroll today) -->
+		<PackageReference Include="NUnit" Version="3.13.3" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+
+		<PackageReference Include="Reqnroll.NUnit" Version="2.4.1" />
+		<PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="2.4.1" />
+
+		<!-- Optional coverage collector (fine to keep) -->
+		<PackageReference Include="coverlet.collector" Version="6.0.0" />
+	</ItemGroup>
+
+</Project>
