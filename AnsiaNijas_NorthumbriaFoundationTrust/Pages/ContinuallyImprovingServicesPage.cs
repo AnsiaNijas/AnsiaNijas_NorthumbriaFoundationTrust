@@ -8,19 +8,18 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Pages
     public class ContinuallyImprovingServicesPage : BasePage
     {
         public ContinuallyImprovingServicesPage(IPage page) : base(page) { }
-
-        public async Task AssertContentVisibleAsync()
+        public ILocator main => Page.Locator("main, #content, .content");
+        public ILocator header=> main.GetByRole(AriaRole.Heading, new() { Level = 1 });
+        public ILocator headerPara => main.Locator("p, li").First;
+     
+        public async Task AssertContentVisibleAsync(string info)
         {
-            await ExpectTitleContainsAsync("Continually improving services");
+            await ExpectTitleContainsAsync(info);                    
+            await Expect(main).ToBeVisibleAsync();            
+            if (await header.CountAsync() > 0)
+                await Expect(header.First).ToBeVisibleAsync();
 
-            var main = Page.Locator("main, #content, .content");
-            await Expect(main).ToBeVisibleAsync();
-
-            var h1 = main.GetByRole(AriaRole.Heading, new() { Level = 1 });
-            if (await h1.CountAsync() > 0)
-                await Expect(h1.First).ToBeVisibleAsync();
-
-            await Expect(main.Locator("p, li").First).ToBeVisibleAsync();
+            await Expect(headerPara).ToBeVisibleAsync();
         }
     }
 }

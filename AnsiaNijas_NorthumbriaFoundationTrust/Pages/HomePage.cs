@@ -9,13 +9,23 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Pages
     /// <summary>Northumbria homepage: open, accept cookies, perform a search.</summary>
     public class HomePage : BasePage
     {
+        private readonly string _baseUrl;                
         public readonly SiteHeader SiteHeader;
-        public HomePage(IPage page) : base(page) => SiteHeader = new SiteHeader(page);
 
+        public HomePage(IPage page, string baseUrl)       
+            : base(page)
+        {
+            _baseUrl = baseUrl.TrimEnd('/');
+            SiteHeader = new SiteHeader(page);
+        }
+
+        public ILocator cookieAccept => Page.GetByRole(AriaRole.Button, new() { Name = "Accept", Exact = false }).First;
+        public ILocator searchButton =>  Page.GetByRole(AriaRole.Button, new() { Name = "Search", Exact = false });
+        public ILocator searchButtonByText => Page.Locator("button:has-text('Search'), [type=submit]");
         public async Task OpenAsync()
         {
             await GoToAsync("/");
-            await Expect(Page).ToHaveURLAsync(new Regex(@"northumbria\.nhs\.uk", RegexOptions.IgnoreCase));
+            await Expect(Page).ToHaveURLAsync(_baseUrl +"/");
             await AcceptCookiesIfAnyAsync();
         }
 
@@ -23,9 +33,8 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Pages
         {
             try
             {
-                var accept = Page.GetByRole(AriaRole.Button, new() { Name = "Accept", Exact = false }).First;
-                if (await accept.IsVisibleAsync(new()))
-                    await accept.ClickAsync();
+                if (await cookieAccept.IsVisibleAsync(new()))
+                    await cookieAccept.ClickAsync();
             }
             catch { /* best-effort only */ }
         }
@@ -50,9 +59,9 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Pages
         /// <summary>Submit search via clicking a "Search" button (if present).</summary>
         public async Task SubmitSearchByButtonAsync()
         {
-            var btn = Page.GetByRole(AriaRole.Button, new() { Name = "Search", Exact=false });
+            var btn= searchButton;
             if (!await btn.First.IsVisibleAsync(new()))
-                btn = Page.Locator("button:has-text('Search'), [type=submit]");
+                btn = searchButtonByText;
 
             if (await btn.First.IsVisibleAsync())
             {
@@ -61,11 +70,7 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Pages
                     btn.First.ClickAsync()
                 );
             }
-            else
-            {
-                // Fallback to Enter if button isn't there
-                await SubmitSearchByEnterAsync();
-            }
+            
         }
     }
 }

@@ -13,7 +13,7 @@ Feature: Search Functionality on Northumbria NHS Website
     Then I should see search results related to "<term>"
     And I can click the "Quality and safety" link from the results
     And I navigate to the "Continually improving services" page
-    Then I should see relevant information about the section
+    Then I should see relevant information about "Continually improving services"
 
     Examples:
       | term               |
@@ -27,7 +27,7 @@ Feature: Search Functionality on Northumbria NHS Website
     Then I should see search results related to "<term>"
     And I can click the "Quality and safety" link from the results
     And I navigate to the "Continually improving services" page
-    Then I should see relevant information about the section
+    Then I should see relevant information about "Continually improving services"
 
     Examples:
       | term               |

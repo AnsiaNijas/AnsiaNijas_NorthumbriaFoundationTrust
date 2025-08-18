@@ -10,6 +10,10 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Pages
     {
         public QualityAndSafetyPage(IPage page) : base(page) { }
 
+        public ILocator contImprServLink => Page.GetByRole(AriaRole.Link, new () { Name = "Continually improving services", Exact=false});
+        public ILocator contImprServRole => Page.GetByRole(AriaRole.Button, new () { Name = "Continually improving services", Exact=false });
+        public ILocator contImprServText => Page.Locator("section, article, div, li").Filter(new() { HasText = "Continually improving services" }).First;
+            
         public async Task AssertLoadedAsync()
         {
             await Expect(Page).ToHaveURLAsync(new Regex(@"quality-and-safety", RegexOptions.IgnoreCase));
@@ -19,12 +23,12 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Pages
         /// <summary>Navigates to "Continually improving services" via link/button/card.</summary>
         public async Task GoToContinuallyImprovingAsync()
         {
-            var target = Page.GetByRole(AriaRole.Link, new() { Name = "Continually improving services", Exact=false});
+            var target = contImprServLink;
             if (!await target.First.IsVisibleAsync(new()))
             {
-                target = Page.GetByRole(AriaRole.Button, new() { Name = "Continually improving services", Exact=false });
+                target = contImprServRole;
                 if (!await target.First.IsVisibleAsync(new() ))
-                    target = Page.Locator("section, article, div, li").Filter(new() { HasText = "Continually improving services" }).First;
+                    target = contImprServLink;
             }
 
             await Task.WhenAll(

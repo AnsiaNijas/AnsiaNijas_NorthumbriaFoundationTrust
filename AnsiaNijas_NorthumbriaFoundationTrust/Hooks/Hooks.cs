@@ -1,5 +1,7 @@
 ﻿using Reqnroll;
 using Microsoft.Playwright;
+using NUnit.Framework; // TestContext
+using AnsiaNijas_NorthumbriaFoundationTrust.Support;
 
 namespace Northumbria.Tests.Hooks
 {
@@ -12,36 +14,42 @@ namespace Northumbria.Tests.Hooks
 
         public Hooks(ScenarioContext ctx) => _ctx = ctx;
 
-        private static string BaseUrl =>
-            Environment.GetEnvironmentVariable("BASE_URL")?.TrimEnd('/')
-            ?? "https://www.northumbria.nhs.uk";
-        private static string BrowserName =>
-            (Environment.GetEnvironmentVariable("BROWSER") ?? "chromium").ToLowerInvariant();
-        private static bool Headless =>
-            !string.Equals(Environment.GetEnvironmentVariable("HEADLESS"), "false", StringComparison.OrdinalIgnoreCase);
-
         [BeforeScenario]
         public async Task BeforeScenario()
         {
+            // 1) Read settings from appsettings.json (+ env overrides)
+            var cfg = TestConfig.Load();
+
+            // 2) Playwright + Browser
             _pw ??= await Playwright.CreateAsync();
+            _browser = cfg.Browser.ToLowerInvariant() == "firefox"
+                ? await _pw.Firefox.LaunchAsync(new() { Headless = cfg.Headless })
+                : await _pw.Chromium.LaunchAsync(new() { Headless = cfg.Headless, Channel = "chrome" });
 
-            _browser = BrowserName == "firefox"
-                ? await _pw.Firefox.LaunchAsync(new() { Headless = Headless })
-                : await _pw.Chromium.LaunchAsync(new() { Headless = Headless, Channel = "chrome" });
+            // 3) Context with BaseURL from config
+            var artifactsDir = Path.Combine(TestContext.CurrentContext.WorkDirectory, "TestResults");
+            Directory.CreateDirectory(artifactsDir);
 
-            var context = await _browser.NewContextAsync(new() { BaseURL = BaseUrl });
-            Directory.CreateDirectory("TestResults");
+            var context = await _browser.NewContextAsync(new() { BaseURL = cfg.BaseUrl });
+
+            // Tracing (no video)
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
+            // 4) Page + timeouts
             var page = await context.NewPageAsync();
-            page.SetDefaultTimeout(10000);
+            page.SetDefaultTimeout(cfg.DefaultTimeoutMs);
+            page.SetDefaultNavigationTimeout(cfg.DefaultTimeoutMs);
 
-            // Share the page with steps
+            // 5) Share for steps/pages
             _ctx["Page"] = page;
+            _ctx["BaseUrl"] = cfg.BaseUrl; 
 
-            // Optional: handle cookie banner quickly if it shows up
+            // 6) Cookie banner (best effort)
             var accept = page.GetByRole(AriaRole.Button, new() { Name = "Accept", Exact = false });
             if (await accept.IsVisibleAsync()) await accept.ClickAsync();
+
+            // Allure Report
+
         }
 
         [AfterScenario]
@@ -49,8 +57,12 @@ namespace Northumbria.Tests.Hooks
         {
             if (_ctx.TryGetValue("Page", out IPage? page) && page is not null)
             {
-                var trace = Path.Combine("TestResults", Sanitize(_ctx.ScenarioInfo.Title) + ".zip");
-                await page.Context.Tracing.StopAsync(new() { Path = trace });
+                var tracePath = Path.Combine(
+                    TestContext.CurrentContext.WorkDirectory,
+                    "TestResults",
+                    Sanitize(_ctx.ScenarioInfo.Title) + ".zip");
+
+                await page.Context.Tracing.StopAsync(new() { Path = tracePath });
                 await page.Context.CloseAsync();
             }
 

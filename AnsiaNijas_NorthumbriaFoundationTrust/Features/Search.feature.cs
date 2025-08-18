@@ -151,7 +151,7 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Features
     await testRunner.AndAsync("I navigate to the \"Continually improving services\" page", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 16
-    await testRunner.ThenAsync("I should see relevant information about the section", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("I should see relevant information about \"Continually improving services\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -202,7 +202,7 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Features
     await testRunner.AndAsync("I navigate to the \"Continually improving services\" page", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 30
-    await testRunner.ThenAsync("I should see relevant information about the section", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("I should see relevant information about \"Continually improving services\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

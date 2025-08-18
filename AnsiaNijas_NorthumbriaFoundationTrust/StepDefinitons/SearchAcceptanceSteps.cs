@@ -17,7 +17,9 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Tests.StepDefinitions
         [Given(@"I navigate to the Northumbria NHS homepage")]
         public async Task GivenINavigateToHome()
         {
-            await new HomePage(Page).OpenAsync();
+            var baseUrl = (string)_ctx["BaseUrl"];
+            var home = new HomePage(Page, baseUrl);
+            await home.OpenAsync();
         }
 
         // --- When ---
@@ -25,7 +27,8 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Tests.StepDefinitions
         public async Task WhenIEnterInTheSearchBox(string term)
         {
             _ctx["term"] = term;
-            var home = new HomePage(Page);
+            var baseUrl = (string)_ctx["BaseUrl"];
+            var home = new HomePage(Page, baseUrl);
             await home.EnterSearchTermAsync(term);
         }
 
@@ -33,14 +36,16 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Tests.StepDefinitions
         public async Task WhenIClickSearch()
         {
             // the site reliably submits on Enter; the POM also supports a button if present
-            var home = new HomePage(Page);
+            var baseUrl = (string)_ctx["BaseUrl"];
+            var home = new HomePage(Page, baseUrl);
             await home.SubmitSearchByButtonAsync();
         }
 
         [When(@"I perform the search by enter")]
         public async Task WhenIPressEnter()
         {
-            var home = new HomePage(Page);
+            var baseUrl = (string)_ctx["BaseUrl"];
+            var home = new HomePage(Page, baseUrl);
             await home.SubmitSearchByEnterAsync();
         }
 
@@ -52,14 +57,6 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Tests.StepDefinitions
             await results.AssertHasResultsForAsync(expected);
         }
 
-        [Then(@"results will be returned based on the entered search term")]
-        public async Task ThenResultsReturnedForStoredTerm()
-        {
-            var term = _ctx.TryGetValue("term", out var o) ? o?.ToString() ?? "" : "";
-            var results = new SearchResultsPage(Page);
-            await results.AssertHasResultsForAsync(term);
-        }
-
         [Then(@"I can click the ""(.*)"" link from the results")]
         public async Task ThenIClickResultLink(string title)
         {
@@ -67,18 +64,18 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Tests.StepDefinitions
             await results.ClickResultAsync(title);
         }
 
-        [Then(@"I navigate to the ""(.*)"" page")]
-        public async Task ThenINavigateToThePage(string sectionName)
+        [Then(@"I navigate to the ""Continually improving services"" page")]
+        public async Task ThenINavigateToThePage()
         {
             var qas = new QualityAndSafetyPage(Page);
             await qas.AssertLoadedAsync();
             await qas.GoToContinuallyImprovingAsync(); // clicks the “Continually improving services” box/link
         }
 
-        [Then(@"I should see relevant information about the section")]
-        public async Task ThenISeeRelevantInfo()
+        [Then(@"I should see relevant information about ""(.*)""")]
+        public async Task ThenISeeRelevantInfo(string info)
         {
-            await new ContinuallyImprovingServicesPage(Page).AssertContentVisibleAsync();
+            await new ContinuallyImprovingServicesPage(Page).AssertContentVisibleAsync(info);
         }
     }
 }
