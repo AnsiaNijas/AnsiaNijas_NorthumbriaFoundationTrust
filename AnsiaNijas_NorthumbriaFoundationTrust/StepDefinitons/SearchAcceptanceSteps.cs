@@ -32,21 +32,13 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Tests.StepDefinitions
             await home.EnterSearchTermAsync(term);
         }
 
-        [When(@"I perform the search by clicking the search button")]
-        public async Task WhenIClickSearch()
-        {
-            // the site reliably submits on Enter; the POM also supports a button if present
-            var baseUrl = (string)_ctx["BaseUrl"];
-            var home = new HomePage(Page, baseUrl);
-            await home.SubmitSearchByButtonAsync();
-        }
-
-        [When(@"I perform the search by enter")]
-        public async Task WhenIPressEnter()
+        [When(@"I perform the search using the ""(.*)"" action")]
+        public async Task WhenIClickSearch(string trigger)
         {
             var baseUrl = (string)_ctx["BaseUrl"];
             var home = new HomePage(Page, baseUrl);
-            await home.SubmitSearchByEnterAsync();
+            await home.SubmitSearchByTriggerAsync(trigger);
+        
         }
 
         // --- Then ---
@@ -64,7 +56,7 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Tests.StepDefinitions
             await results.ClickResultAsync(title);
         }
 
-        [Then(@"I navigate to the ""Continually improving services"" page")]
+        [Then(@"I navigate to the ""Continually improving services"" page by clicking on the box")]
         public async Task ThenINavigateToThePage()
         {
             var qas = new QualityAndSafetyPage(Page);

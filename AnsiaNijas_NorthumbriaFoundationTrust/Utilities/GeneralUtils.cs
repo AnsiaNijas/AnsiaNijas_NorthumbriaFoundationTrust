@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using static Microsoft.Playwright.Assertions;
 
-namespace AnsiaNijas_NorthumbriaFoundationTrust.Pages
+namespace AnsiaNijas_NorthumbriaFoundationTrust.Utilities
 {
     /// <summary>Base class with common helpers for all pages.</summary>
-    public abstract class BasePage
+    public abstract class GeneralUtils
     {
         protected readonly IPage Page;
-        protected BasePage(IPage page) => Page = page;
+        protected GeneralUtils(IPage page) => Page = page;
 
         public virtual Task GoToAsync(string relative = "/") => Page.GotoAsync(relative);
 

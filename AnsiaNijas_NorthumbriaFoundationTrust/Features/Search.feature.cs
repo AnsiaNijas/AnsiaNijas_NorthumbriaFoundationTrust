@@ -107,13 +107,15 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Submit search via Search button")]
-        [NUnit.Framework.CategoryAttribute("button")]
-        [NUnit.Framework.TestCaseAttribute("Quality and safety", null)]
-        public async global::System.Threading.Tasks.Task SubmitSearchViaSearchButton(string term, string[] exampleTags)
+        [NUnit.Framework.DescriptionAttribute("Perform a search by clicking the search button as well as pressing the enter key " +
+            "on the keyboard")]
+        [NUnit.Framework.CategoryAttribute("happypath")]
+        [NUnit.Framework.TestCaseAttribute("Quality and safety", "search", null)]
+        [NUnit.Framework.TestCaseAttribute("Quality and safety", "enter", null)]
+        public async global::System.Threading.Tasks.Task PerformASearchByClickingTheSearchButtonAsWellAsPressingTheEnterKeyOnTheKeyboard(string term, string trigger, string[] exampleTags)
         {
             string[] @__tags = new string[] {
-                    "button"};
+                    "happypath"};
             if ((exampleTags != null))
             {
                 @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
@@ -121,7 +123,9 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Features
             string[] tagsOfScenario = @__tags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             argumentsOfScenario.Add("term", term);
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Submit search via Search button", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            argumentsOfScenario.Add("Trigger", trigger);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Perform a search by clicking the search button as well as pressing the enter key " +
+                    "on the keyboard", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 9
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -139,69 +143,18 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Features
     await testRunner.WhenAsync(string.Format("I enter \"{0}\" in the search box", term), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 12
-    await testRunner.AndAsync("I perform the search by clicking the search button", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("I perform the search using the \"<trigger>\" action", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 13
     await testRunner.ThenAsync(string.Format("I should see search results related to \"{0}\"", term), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 14
-    await testRunner.AndAsync("I can click the \"Quality and safety\" link from the results", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync(string.Format("I can click the \"{0}\" link from the results", term), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 15
-    await testRunner.AndAsync("I navigate to the \"Continually improving services\" page", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("I navigate to the \"Continually improving services\" page by clicking on the box", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 16
-    await testRunner.ThenAsync("I should see relevant information about \"Continually improving services\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Submit search via Enter key")]
-        [NUnit.Framework.CategoryAttribute("enter")]
-        [NUnit.Framework.TestCaseAttribute("Quality and safety", null)]
-        public async global::System.Threading.Tasks.Task SubmitSearchViaEnterKey(string term, string[] exampleTags)
-        {
-            string[] @__tags = new string[] {
-                    "enter"};
-            if ((exampleTags != null))
-            {
-                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
-            }
-            string[] tagsOfScenario = @__tags;
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            argumentsOfScenario.Add("term", term);
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Submit search via Enter key", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 23
-  this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 24
-    await testRunner.GivenAsync("I navigate to the Northumbria NHS homepage", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 25
-    await testRunner.WhenAsync(string.Format("I enter \"{0}\" in the search box", term), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 26
-    await testRunner.AndAsync("I perform the search by enter", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 27
-    await testRunner.ThenAsync(string.Format("I should see search results related to \"{0}\"", term), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-#line 28
-    await testRunner.AndAsync("I can click the \"Quality and safety\" link from the results", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 29
-    await testRunner.AndAsync("I navigate to the \"Continually improving services\" page", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 30
     await testRunner.ThenAsync("I should see relevant information about \"Continually improving services\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

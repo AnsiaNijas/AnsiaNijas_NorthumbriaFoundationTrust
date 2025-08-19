@@ -5,30 +5,17 @@ Feature: Search Functionality on Northumbria NHS Website
   So that I can view relevant information
 
 
-  @button
-  Scenario Outline: Submit search via Search button
+@happypath
+  Scenario Outline: Perform a search by clicking the search button as well as pressing the enter key on the keyboard
     Given I navigate to the Northumbria NHS homepage
     When I enter "<term>" in the search box
-    And I perform the search by clicking the search button
+    And I perform the search using the "<trigger>" action
     Then I should see search results related to "<term>"
-    And I can click the "Quality and safety" link from the results
-    And I navigate to the "Continually improving services" page
+    And I can click the "<term>" link from the results
+    And I navigate to the "Continually improving services" page by clicking on the box 
     Then I should see relevant information about "Continually improving services"
-
+    
     Examples:
-      | term               |
-      | Quality and safety |
-
-  @enter
-  Scenario Outline: Submit search via Enter key
-    Given I navigate to the Northumbria NHS homepage
-    When I enter "<term>" in the search box
-    And I perform the search by enter
-    Then I should see search results related to "<term>"
-    And I can click the "Quality and safety" link from the results
-    And I navigate to the "Continually improving services" page
-    Then I should see relevant information about "Continually improving services"
-
-    Examples:
-      | term               |
-      | Quality and safety |
+      | term               |Trigger|
+      | Quality and safety |search |
+      | Quality and safety |enter  |
