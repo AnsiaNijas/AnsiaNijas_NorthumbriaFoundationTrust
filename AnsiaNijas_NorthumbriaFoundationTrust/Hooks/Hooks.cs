@@ -16,7 +16,7 @@ namespace Northumbria.Tests.Hooks
         private IBrowser? _browser;
         private TestConfig? _cfg;
 
-        // Project-level TestResults root (…\YourProject\TestResults\…)
+        
         private static readonly string ArtifactRoot =
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestResults");
 
@@ -26,7 +26,7 @@ namespace Northumbria.Tests.Hooks
 
         public Hooks(ScenarioContext ctx) => _ctx = ctx;
 
-        // Ensure folders + env var are set BEFORE any test starts (so Allure never writes to bin)
+        
         [BeforeTestRun]
         public static void BeforeTestRun()
         {
@@ -34,7 +34,7 @@ namespace Northumbria.Tests.Hooks
             Directory.CreateDirectory(TraceDir);
             Directory.CreateDirectory(AllureResultsDir);
 
-            // Pin Allure writer to <project>\TestResults\allure-results
+            
             Environment.SetEnvironmentVariable("ALLURE_RESULTS_DIRECTORY", AllureResultsDir);
 
         }
