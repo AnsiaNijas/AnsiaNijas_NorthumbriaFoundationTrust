@@ -1,4 +1,10 @@
 {
   "language": { "feature": "en-us" },
-  "trace": { "traceSuccessfulSteps": true }
+  "trace": { "traceSuccessfulSteps": true },
+  "plugins": [
+    {
+      "name": "Allure",
+      "type": "Runtime"
+    }
+  ]
 }

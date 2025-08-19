@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using static Microsoft.Playwright.Assertions;
-using Northumbria.Tests.Components;
 using AnsiaNijas_NorthumbriaFoundationTrust.Utilities;
 using System.Xml.Linq;
 
@@ -11,14 +10,12 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Pages
     /// <summary>Northumbria homepage: open, accept cookies, perform a search.</summary>
     public class HomePage : GeneralUtils
     {
-        private readonly string _baseUrl;                
-        public readonly SiteHeader SiteHeader;
+        private readonly string _baseUrl;      
 
         public HomePage(IPage page, string baseUrl)       
             : base(page)
         {
             _baseUrl = baseUrl.TrimEnd('/');
-            SiteHeader = new SiteHeader(page);
         }
 
         public ILocator nhsIcon => Page.GetByRole(AriaRole.Link, new() { Name = "Northumbria Healthcare NHS" });

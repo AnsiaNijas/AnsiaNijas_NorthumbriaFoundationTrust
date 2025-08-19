@@ -1,7 +1,10 @@
-﻿using Reqnroll;
+﻿using System;
+using System.IO;
+using Reqnroll;
 using Microsoft.Playwright;
-using NUnit.Framework; // TestContext
+using NUnit.Framework;
 using AnsiaNijas_NorthumbriaFoundationTrust.Support;
+using Allure.Net.Commons; // AllureApi.*
 
 namespace Northumbria.Tests.Hooks
 {
@@ -11,45 +14,83 @@ namespace Northumbria.Tests.Hooks
         private readonly ScenarioContext _ctx;
         private IPlaywright? _pw;
         private IBrowser? _browser;
+        private TestConfig? _cfg;
+
+        // Project-level TestResults root (…\YourProject\TestResults\…)
+        private static readonly string ArtifactRoot =
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestResults");
+
+        private static string ScreenshotDir => Path.Combine(ArtifactRoot, "screenshots");
+        private static string TraceDir => Path.Combine(ArtifactRoot, "trace");
+        private static string AllureResultsDir => Path.Combine(ArtifactRoot, "allure-results");
 
         public Hooks(ScenarioContext ctx) => _ctx = ctx;
+
+        // Ensure folders + env var are set BEFORE any test starts (so Allure never writes to bin)
+        [BeforeTestRun]
+        public static void BeforeTestRun()
+        {
+            Directory.CreateDirectory(ScreenshotDir);
+            Directory.CreateDirectory(TraceDir);
+            Directory.CreateDirectory(AllureResultsDir);
+
+            // Pin Allure writer to <project>\TestResults\allure-results
+            Environment.SetEnvironmentVariable("ALLURE_RESULTS_DIRECTORY", AllureResultsDir);
+
+        }
 
         [BeforeScenario]
         public async Task BeforeScenario()
         {
-            // 1) Read settings from appsettings.json (+ env overrides)
-            var cfg = TestConfig.Load();
+            _cfg = TestConfig.Load();
 
-            // 2) Playwright + Browser
             _pw ??= await Playwright.CreateAsync();
-            _browser = cfg.Browser.ToLowerInvariant() == "firefox"
-                ? await _pw.Firefox.LaunchAsync(new() { Headless = cfg.Headless })
-                : await _pw.Chromium.LaunchAsync(new() { Headless = cfg.Headless, Channel = "chrome" });
+            var browserName = (_cfg.Browser ?? "chrome").Trim().ToLowerInvariant();
 
-            // 3) Context with BaseURL from config
-            var artifactsDir = Path.Combine(TestContext.CurrentContext.WorkDirectory, "TestResults");
-            Directory.CreateDirectory(artifactsDir);
+            _browser = browserName == "firefox"
+                ? await _pw.Firefox.LaunchAsync(new() { Headless = _cfg.Headless })
+                : await _pw.Chromium.LaunchAsync(new() { Headless = _cfg.Headless, Channel = "chrome" });
 
-            var context = await _browser.NewContextAsync(new() { BaseURL = cfg.BaseUrl });
+            var context = await _browser.NewContextAsync(new() { BaseURL = _cfg.BaseUrl });
 
-            // Tracing (no video)
+            // Start Playwright tracing
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
-            // 4) Page + timeouts
             var page = await context.NewPageAsync();
-            page.SetDefaultTimeout(cfg.DefaultTimeoutMs);
-            page.SetDefaultNavigationTimeout(cfg.DefaultTimeoutMs);
+            page.SetDefaultTimeout(_cfg.DefaultTimeoutMs);
+            page.SetDefaultNavigationTimeout(_cfg.DefaultTimeoutMs);
 
-            // 5) Share for steps/pages
             _ctx["Page"] = page;
-            _ctx["BaseUrl"] = cfg.BaseUrl; 
+            _ctx["BaseUrl"] = _cfg.BaseUrl;
+            _ctx["BrowserName"] = browserName;
 
-            // 6) Cookie banner (best effort)
+            // Best-effort cookie banner
             var accept = page.GetByRole(AriaRole.Button, new() { Name = "Accept", Exact = false });
             if (await accept.IsVisibleAsync()) await accept.ClickAsync();
+        }
 
-            // Allure Report
+        // Screenshot immediately when a step fails
+        [AfterStep]
+        public async Task AfterStep()
+        {
+            if (_ctx.TestError == null) return;
 
+            if (_ctx.TryGetValue("Page", out IPage? page) && page is not null)
+            {
+                var shotPath = Path.Combine(
+                    ScreenshotDir,
+                    Sanitize($"{_ctx.ScenarioInfo.Title}_stepFail.png"));
+
+                await page.ScreenshotAsync(new() { Path = shotPath, FullPage = true });
+
+                if (File.Exists(shotPath))
+                {
+                    AllureApi.AddAttachment(
+                        $"Failed step - {_ctx.StepContext.StepInfo.Text}",
+                        "image/png",
+                        shotPath);
+                }
+            }
         }
 
         [AfterScenario]
@@ -57,17 +98,34 @@ namespace Northumbria.Tests.Hooks
         {
             if (_ctx.TryGetValue("Page", out IPage? page) && page is not null)
             {
-                var tracePath = Path.Combine(
-                    TestContext.CurrentContext.WorkDirectory,
-                    "TestResults",
-                    Sanitize(_ctx.ScenarioInfo.Title) + ".zip");
-
+                // Stop trace and attach
+                var tracePath = Path.Combine(TraceDir, Sanitize(_ctx.ScenarioInfo.Title) + ".zip");
                 await page.Context.Tracing.StopAsync(new() { Path = tracePath });
+                if (File.Exists(tracePath))
+                    AllureApi.AddAttachment("Playwright trace", "application/zip", tracePath);
+
+                // Final screenshot if scenario failed
+                var status = TestContext.CurrentContext.Result.Outcome.Status;
+                if (status == NUnit.Framework.Interfaces.TestStatus.Failed)
+                {
+                    var finalShot = Path.Combine(ScreenshotDir, Sanitize(_ctx.ScenarioInfo.Title) + ".png");
+                    await page.ScreenshotAsync(new() { Path = finalShot, FullPage = true });
+                    if (File.Exists(finalShot))
+                        AllureApi.AddAttachment("Failure screenshot", "image/png", finalShot);
+                }
+
                 await page.Context.CloseAsync();
             }
 
-            if (_browser is not null)
-                await _browser.CloseAsync();
+            try
+            {
+                var browserName = _ctx.TryGetValue("BrowserName", out string? b) ? b : "unknown";
+                AllureApi.AddLabel("browser", browserName);
+            }
+            catch { /* ignore if lifecycle not available */ }
+
+            if (_browser is not null) await _browser.CloseAsync();
+            _pw?.Dispose();
         }
 
         private static string Sanitize(string s)

@@ -6,7 +6,7 @@ namespace AnsiaNijas_NorthumbriaFoundationTrust.Support
     public sealed class TestConfig
     {
         public string BaseUrl { get; set; } = "https://www.northumbria.nhs.uk";
-        public string Browser { get; set; } = "chromium";
+        public string Browser { get; set; } = "chrome";
         public bool Headless { get; set; } = true;
         public int DefaultTimeoutMs { get; set; } = 10000;
 

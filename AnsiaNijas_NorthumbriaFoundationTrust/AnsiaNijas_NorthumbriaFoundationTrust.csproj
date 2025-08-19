@@ -13,6 +13,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Content Remove="C:\Users\ansia\.nuget\packages\allure.net.commons\2.12.1\contentFiles\any\netstandard2.0\allureConfig.Template.json" />
+	  <Content Remove="C:\Users\ansia\.nuget\packages\allure.reqnroll\2.12.1\contentFiles\any\netstandard2.0\allureConfig.Template.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="appsettings.json" />
 	</ItemGroup>
 
@@ -39,6 +44,7 @@
 		<!-- Testing + BDD + Playwright -->
 		<PackageReference Include="Allure.Net.Commons" Version="2.12.1" />
 		<PackageReference Include="Allure.NUnit" Version="2.12.1" />
+		<PackageReference Include="Allure.Reqnroll" Version="2.12.1" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
 		<PackageReference Include="Microsoft.Playwright" Version="1.54.0" />
 
@@ -52,4 +58,12 @@
 		<!-- Optional coverage collector (fine to keep) -->
 		<PackageReference Include="coverlet.collector" Version="6.0.0" />
 	</ItemGroup>
+
+	<ItemGroup>
+  <None Update="reqnroll.json">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
+
+
 </Project>
